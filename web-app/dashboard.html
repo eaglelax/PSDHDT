@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Pointage RH</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Pointage RH</h2>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="employes.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Employes</span>
+            </a>
+            <a href="pointages.html" class="nav-item">
+                <span class="nav-icon">⏱️</span>
+                <span class="nav-text">Pointages</span>
+            </a>
+            <a href="statistiques.html" class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">Statistiques</span>
+            </a>
+            <a href="bulletins.html" class="nav-item">
+                <span class="nav-icon">📄</span>
+                <span class="nav-text">Bulletins</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Deconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">Dashboard</h1>
+            <div class="header-actions">
+                <span class="user-info" id="user-info">Chargement...</span>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+            <div id="alert-container"></div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">👥</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-total-employes">-</span>
+                        <span class="stat-label">Total Employes</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-presents">-</span>
+                        <span class="stat-label">Presents Aujourd'hui</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon red">❌</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-absents">-</span>
+                        <span class="stat-label">Absents</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">⏰</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-heures">-</span>
+                        <span class="stat-label">Heures ce mois</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tables Section -->
+            <div class="grid grid-2">
+                <!-- Presents du jour -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Presents Aujourd'hui</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employe</th>
+                                        <th>Arrivee</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-presents">
+                                    <tr>
+                                        <td colspan="3" class="text-center">Chargement...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Derniers pointages -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Derniers Pointages</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employe</th>
+                                        <th>Type</th>
+                                        <th>Heure</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-pointages">
+                                    <tr>
+                                        <td colspan="3" class="text-center">Chargement...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resume mensuel -->
+            <div class="card mt-2">
+                <div class="card-header">
+                    <h3 class="card-title">Resume du Mois</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-4">
+                        <div class="text-center">
+                            <div class="stat-value" id="stat-jours-travail">-</div>
+                            <div class="stat-label">Jours de travail</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stat-value" id="stat-heures-normales">-</div>
+                            <div class="stat-label">Heures normales</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stat-value" id="stat-heures-sup">-</div>
+                            <div class="stat-label">Heures supplementaires</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stat-value" id="stat-taux-presence">-</div>
+                            <div class="stat-label">Taux de presence</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Verifier l'authentification
+        if (!requireAuth()) {
+            // Redirection geree par requireAuth()
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserInfo();
+            loadDashboard();
+        });
+
+        // Charger les infos utilisateur
+        function loadUserInfo() {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-info').textContent = `${user.prenom} ${user.nom} (${user.role.toUpperCase()})`;
+            }
+        }
+
+        // Charger le dashboard
+        async function loadDashboard() {
+            showLoading();
+            try {
+                const response = await API.getDashboard();
+
+                if (response.success) {
+                    const data = response.data;
+
+                    // Stats principales
+                    document.getElementById('stat-total-employes').textContent = data.total_employes || 0;
+                    document.getElementById('stat-presents').textContent = data.presents_aujourd_hui || 0;
+                    document.getElementById('stat-absents').textContent = data.absents_aujourd_hui || 0;
+                    document.getElementById('stat-heures').textContent = (data.heures_mois || 0) + 'h';
+
+                    // Resume mensuel
+                    document.getElementById('stat-jours-travail').textContent = data.jours_travail || 0;
+                    document.getElementById('stat-heures-normales').textContent = (data.heures_normales || 0) + 'h';
+                    document.getElementById('stat-heures-sup').textContent = (data.heures_supplementaires || 0) + 'h';
+                    document.getElementById('stat-taux-presence').textContent = (data.taux_presence || 0) + '%';
+
+                    // Table des presents
+                    renderPresents(data.presents || []);
+
+                    // Table des derniers pointages
+                    renderPointages(data.derniers_pointages || []);
+                } else {
+                    showAlert('alert-container', response.message || 'Erreur lors du chargement', 'danger');
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion au serveur', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Afficher les presents
+        function renderPresents(presents) {
+            const tbody = document.getElementById('table-presents');
+
+            if (presents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Aucun present aujourd\'hui</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = presents.slice(0, 5).map(p => `
+                <tr>
+                    <td>${p.prenom} ${p.nom}</td>
+                    <td>${formatTime(p.heure_arrivee)}</td>
+                    <td>
+                        <span class="badge badge-${p.en_cours ? 'success' : 'secondary'}">
+                            ${p.en_cours ? 'En cours' : 'Termine'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Afficher les derniers pointages
+        function renderPointages(pointages) {
+            const tbody = document.getElementById('table-pointages');
+
+            if (pointages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Aucun pointage</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pointages.slice(0, 5).map(p => `
+                <tr>
+                    <td>${p.user ? p.user.prenom + ' ' + p.user.nom : 'N/A'}</td>
+                    <td>
+                        <span class="badge badge-${p.type === 'entree' ? 'success' : 'danger'}">
+                            ${p.type === 'entree' ? 'Entree' : 'Sortie'}
+                        </span>
+                    </td>
+                    <td>${formatTime(p.heure)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Deconnexion
+        async function logout() {
+            showLoading();
+            try {
+                await API.logout();
+            } catch (e) {
+                // Ignorer les erreurs
+            }
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

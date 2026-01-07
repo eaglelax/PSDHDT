@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Pointage RH</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>Pointage RH</h1>
+                <p>Connectez-vous a votre espace</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <form class="login-form" id="login-form">
+                <div class="form-group">
+                    <label for="email">Adresse email</label>
+                    <input type="email" id="email" class="form-control" placeholder="votre@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" class="form-control" placeholder="Votre mot de passe" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="btn-login">
+                    Se connecter
+                </button>
+            </form>
+
+            <div class="mt-2 text-center text-muted" style="font-size: 12px;">
+                <p>Comptes de test :</p>
+                <p>rh@entreprise.com | directeur@entreprise.com</p>
+                <p>Mot de passe : password123</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Verifier si deja connecte
+        if (localStorage.getItem('auth_token')) {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Gestion du formulaire
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btnLogin = document.getElementById('btn-login');
+            const alertContainer = document.getElementById('alert-container');
+
+            // Afficher loading
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = 'Connexion en cours...';
+            document.getElementById('loading').classList.add('active');
+
+            try {
+                const response = await API.login(email, password);
+
+                if (response.success) {
+                    // Stocker le token et les infos utilisateur
+                    localStorage.setItem('auth_token', response.data.token);
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+
+                    // Verifier le role
+                    const role = response.data.user.role;
+                    if (role === 'rh' || role === 'directeur') {
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        // Les employes et gardiens n'ont pas acces a l'interface web
+                        alertContainer.innerHTML = `
+                            <div class="alert alert-warning">
+                                Cette interface est reservee aux RH et Directeurs.
+                                Veuillez utiliser l'application mobile.
+                            </div>
+                        `;
+                        localStorage.removeItem('auth_token');
+                        localStorage.removeItem('user');
+                    }
+                } else {
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            ${response.message || 'Identifiants incorrects'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        Erreur de connexion au serveur. Verifiez que l'API est lancee.
+                    </div>
+                `;
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = 'Se connecter';
+                document.getElementById('loading').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

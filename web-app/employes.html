@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employes - Pointage RH</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Pointage RH</h2>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="employes.html" class="nav-item active">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Employes</span>
+            </a>
+            <a href="pointages.html" class="nav-item">
+                <span class="nav-icon">⏱️</span>
+                <span class="nav-text">Pointages</span>
+            </a>
+            <a href="statistiques.html" class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">Statistiques</span>
+            </a>
+            <a href="bulletins.html" class="nav-item">
+                <span class="nav-icon">📄</span>
+                <span class="nav-text">Bulletins</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Deconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">Gestion des Employes</h1>
+            <div class="header-actions">
+                <span class="user-info" id="user-info">Chargement...</span>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+            <div id="alert-container"></div>
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Liste des Employes</h3>
+                    <button class="btn btn-primary" onclick="openModal('modal-employe')">
+                        + Nouvel Employe
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Filtres -->
+                    <div class="grid grid-4 mb-2">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="search" placeholder="Rechercher..." onkeyup="filterEmployes()">
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" id="filter-role" onchange="filterEmployes()">
+                                <option value="">Tous les roles</option>
+                                <option value="employe">Employe</option>
+                                <option value="gardien">Gardien</option>
+                                <option value="rh">RH</option>
+                                <option value="directeur">Directeur</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" id="filter-status" onchange="filterEmployes()">
+                                <option value="">Tous les statuts</option>
+                                <option value="1">Actif</option>
+                                <option value="0">Inactif</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-secondary" onclick="resetFilters()">Reinitialiser</button>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Matricule</th>
+                                    <th>Nom Complet</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Salaire Base</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-employes">
+                                <tr>
+                                    <td colspan="7" class="text-center">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Employe -->
+    <div class="modal-overlay" id="modal-employe">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Nouvel Employe</h3>
+                <button class="modal-close" onclick="closeModal('modal-employe')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-employe">
+                    <input type="hidden" id="employe-id">
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label for="matricule">Matricule *</label>
+                            <input type="text" class="form-control" id="matricule" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label for="nom">Nom *</label>
+                            <input type="text" class="form-control" id="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prenom">Prenom *</label>
+                            <input type="text" class="form-control" id="prenom" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label for="telephone">Telephone</label>
+                            <input type="tel" class="form-control" id="telephone">
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role *</label>
+                            <select class="form-control" id="role" required>
+                                <option value="employe">Employe</option>
+                                <option value="gardien">Gardien</option>
+                                <option value="rh">RH</option>
+                                <option value="directeur">Directeur</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label for="salaire_base">Salaire de Base (FCFA) *</label>
+                            <input type="number" class="form-control" id="salaire_base" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="taux_horaire">Taux Horaire (FCFA)</label>
+                            <input type="number" class="form-control" id="taux_horaire" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="password-group">
+                        <label for="password">Mot de passe *</label>
+                        <input type="password" class="form-control" id="password">
+                        <small class="text-muted">Laissez vide pour garder l'ancien mot de passe (modification)</small>
+                    </div>
+
+                    <div id="form-alert"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-employe')">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="saveEmploye()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmation Suppression -->
+    <div class="modal-overlay" id="modal-delete">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmer la suppression</h3>
+                <button class="modal-close" onclick="closeModal('modal-delete')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Etes-vous sur de vouloir supprimer cet employe ?</p>
+                <p class="text-danger"><strong id="delete-name"></strong></p>
+                <p class="text-muted">Cette action est irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-delete')">Annuler</button>
+                <button type="button" class="btn btn-danger" id="btn-confirm-delete">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Verifier l'authentification
+        if (!requireAuth()) {
+            // Redirection geree par requireAuth()
+        }
+
+        let allEmployes = [];
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserInfo();
+            loadEmployes();
+        });
+
+        // Charger les infos utilisateur
+        function loadUserInfo() {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-info').textContent = `${user.prenom} ${user.nom} (${user.role.toUpperCase()})`;
+            }
+        }
+
+        // Charger les employes
+        async function loadEmployes() {
+            showLoading();
+            try {
+                const response = await API.getUsers();
+
+                if (response.success) {
+                    // Gerer le format pagine de Laravel
+                    allEmployes = response.data.data || response.data;
+                    renderEmployes(allEmployes);
+                } else {
+                    showAlert('alert-container', response.message || 'Erreur lors du chargement', 'danger');
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion au serveur', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Afficher les employes
+        function renderEmployes(employes) {
+            const tbody = document.getElementById('table-employes');
+
+            if (employes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Aucun employe trouve</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = employes.map(e => `
+                <tr>
+                    <td><strong>${e.matricule}</strong></td>
+                    <td>${e.prenom} ${e.nom}</td>
+                    <td>${e.email}</td>
+                    <td>
+                        <span class="badge badge-${getRoleBadge(e.role)}">${e.role.toUpperCase()}</span>
+                    </td>
+                    <td>${formatMoney(e.salaire_base)}</td>
+                    <td>
+                        <span class="badge badge-${e.actif ? 'success' : 'danger'}">
+                            ${e.actif ? 'Actif' : 'Inactif'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="editEmploye(${e.id})" title="Modifier">
+                            ✏️
+                        </button>
+                        <button class="btn btn-sm btn-${e.actif ? 'warning' : 'success'}" onclick="toggleActive(${e.id})" title="${e.actif ? 'Desactiver' : 'Activer'}">
+                            ${e.actif ? '🔒' : '🔓'}
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="confirmDelete(${e.id}, '${e.prenom} ${e.nom}')" title="Supprimer">
+                            🗑️
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Couleur du badge selon le role
+        function getRoleBadge(role) {
+            switch(role) {
+                case 'directeur': return 'primary';
+                case 'rh': return 'info';
+                case 'gardien': return 'warning';
+                default: return 'secondary';
+            }
+        }
+
+        // Filtrer les employes
+        function filterEmployes() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const role = document.getElementById('filter-role').value;
+            const status = document.getElementById('filter-status').value;
+
+            let filtered = allEmployes.filter(e => {
+                const matchSearch = !search ||
+                    e.nom.toLowerCase().includes(search) ||
+                    e.prenom.toLowerCase().includes(search) ||
+                    e.email.toLowerCase().includes(search) ||
+                    e.matricule.toLowerCase().includes(search);
+
+                const matchRole = !role || e.role === role;
+                const matchStatus = status === '' || e.actif === (status === '1');
+
+                return matchSearch && matchRole && matchStatus;
+            });
+
+            renderEmployes(filtered);
+        }
+
+        // Reinitialiser les filtres
+        function resetFilters() {
+            document.getElementById('search').value = '';
+            document.getElementById('filter-role').value = '';
+            document.getElementById('filter-status').value = '';
+            renderEmployes(allEmployes);
+        }
+
+        // Ouvrir modal pour nouveau
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            if (modalId === 'modal-employe') {
+                document.getElementById('modal-title').textContent = 'Nouvel Employe';
+                document.getElementById('form-employe').reset();
+                document.getElementById('employe-id').value = '';
+                document.getElementById('password').required = true;
+            }
+        }
+
+        // Fermer modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            clearAlerts('form-alert');
+        }
+
+        // Editer un employe
+        async function editEmploye(id) {
+            showLoading();
+            try {
+                const response = await API.getUser(id);
+
+                if (response.success) {
+                    const e = response.data;
+                    document.getElementById('modal-title').textContent = 'Modifier Employe';
+                    document.getElementById('employe-id').value = e.id;
+                    document.getElementById('matricule').value = e.matricule;
+                    document.getElementById('email').value = e.email;
+                    document.getElementById('nom').value = e.nom;
+                    document.getElementById('prenom').value = e.prenom;
+                    document.getElementById('telephone').value = e.telephone || '';
+                    document.getElementById('role').value = e.role;
+                    document.getElementById('salaire_base').value = e.salaire_base;
+                    document.getElementById('taux_horaire').value = e.taux_horaire || '';
+                    document.getElementById('password').value = '';
+                    document.getElementById('password').required = false;
+
+                    document.getElementById('modal-employe').classList.add('active');
+                } else {
+                    showAlert('alert-container', response.message || 'Erreur', 'danger');
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Enregistrer employe
+        async function saveEmploye() {
+            const id = document.getElementById('employe-id').value;
+            const data = {
+                matricule: document.getElementById('matricule').value,
+                email: document.getElementById('email').value,
+                nom: document.getElementById('nom').value,
+                prenom: document.getElementById('prenom').value,
+                telephone: document.getElementById('telephone').value,
+                role: document.getElementById('role').value,
+                salaire_base: parseFloat(document.getElementById('salaire_base').value),
+                taux_horaire: parseFloat(document.getElementById('taux_horaire').value) || 0
+            };
+
+            const password = document.getElementById('password').value;
+            if (password) {
+                data.password = password;
+            }
+
+            showLoading();
+            try {
+                let response;
+                if (id) {
+                    response = await API.updateUser(id, data);
+                } else {
+                    if (!password) {
+                        showAlert('form-alert', 'Le mot de passe est requis', 'danger');
+                        hideLoading();
+                        return;
+                    }
+                    response = await API.createUser(data);
+                }
+
+                if (response.success) {
+                    closeModal('modal-employe');
+                    showAlert('alert-container', id ? 'Employe modifie avec succes' : 'Employe cree avec succes', 'success');
+                    loadEmployes();
+                } else {
+                    showAlert('form-alert', response.message || 'Erreur lors de l\'enregistrement', 'danger');
+                }
+            } catch (error) {
+                showAlert('form-alert', 'Erreur de connexion', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Activer/Desactiver
+        async function toggleActive(id) {
+            showLoading();
+            try {
+                const response = await API.toggleUserActive(id);
+
+                if (response.success) {
+                    loadEmployes();
+                } else {
+                    showAlert('alert-container', response.message || 'Erreur', 'danger');
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Confirmer suppression
+        function confirmDelete(id, name) {
+            document.getElementById('delete-name').textContent = name;
+            document.getElementById('btn-confirm-delete').onclick = () => deleteEmploye(id);
+            openModal('modal-delete');
+        }
+
+        // Supprimer
+        async function deleteEmploye(id) {
+            closeModal('modal-delete');
+            showLoading();
+            try {
+                const response = await API.deleteUser(id);
+
+                if (response.success) {
+                    showAlert('alert-container', 'Employe supprime avec succes', 'success');
+                    loadEmployes();
+                } else {
+                    showAlert('alert-container', response.message || 'Erreur', 'danger');
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Deconnexion
+        async function logout() {
+            showLoading();
+            try {
+                await API.logout();
+            } catch (e) {}
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

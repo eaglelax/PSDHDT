@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulletins de Paie - Pointage RH</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Pointage RH</h2>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="employes.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Employes</span>
+            </a>
+            <a href="pointages.html" class="nav-item">
+                <span class="nav-icon">⏱️</span>
+                <span class="nav-text">Pointages</span>
+            </a>
+            <a href="statistiques.html" class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">Statistiques</span>
+            </a>
+            <a href="bulletins.html" class="nav-item active">
+                <span class="nav-icon">📄</span>
+                <span class="nav-text">Bulletins</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Deconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">Bulletins de Paie</h1>
+            <div class="header-actions">
+                <span class="user-info" id="user-info">Chargement...</span>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+            <div id="alert-container"></div>
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Generation des Bulletins</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-4">
+                        <div class="form-group">
+                            <label>Mois</label>
+                            <select class="form-control" id="gen-mois">
+                                <option value="1">Janvier</option>
+                                <option value="2">Fevrier</option>
+                                <option value="3">Mars</option>
+                                <option value="4">Avril</option>
+                                <option value="5">Mai</option>
+                                <option value="6">Juin</option>
+                                <option value="7">Juillet</option>
+                                <option value="8">Aout</option>
+                                <option value="9">Septembre</option>
+                                <option value="10">Octobre</option>
+                                <option value="11">Novembre</option>
+                                <option value="12">Decembre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Annee</label>
+                            <select class="form-control" id="gen-annee">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Employe (optionnel)</label>
+                            <select class="form-control" id="gen-employe">
+                                <option value="">Tous les employes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary" onclick="generateBulletins()">
+                                Generer les bulletins
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtres -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Historique des Bulletins</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-4 mb-2">
+                        <div class="form-group">
+                            <label>Mois</label>
+                            <select class="form-control" id="filter-mois" onchange="loadBulletins()">
+                                <option value="">Tous les mois</option>
+                                <option value="1">Janvier</option>
+                                <option value="2">Fevrier</option>
+                                <option value="3">Mars</option>
+                                <option value="4">Avril</option>
+                                <option value="5">Mai</option>
+                                <option value="6">Juin</option>
+                                <option value="7">Juillet</option>
+                                <option value="8">Aout</option>
+                                <option value="9">Septembre</option>
+                                <option value="10">Octobre</option>
+                                <option value="11">Novembre</option>
+                                <option value="12">Decembre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Annee</label>
+                            <select class="form-control" id="filter-annee" onchange="loadBulletins()">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Employe</label>
+                            <select class="form-control" id="filter-employe" onchange="loadBulletins()">
+                                <option value="">Tous</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employe</th>
+                                    <th>Periode</th>
+                                    <th>Salaire Base</th>
+                                    <th>Heures Norm.</th>
+                                    <th>Heures Sup.</th>
+                                    <th>Prime</th>
+                                    <th>Net a Payer</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-bulletins">
+                                <tr>
+                                    <td colspan="8" class="text-center">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resume -->
+            <div class="card mt-2">
+                <div class="card-header">
+                    <h3 class="card-title">Resume</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-4">
+                        <div class="text-center">
+                            <div class="stat-value" id="resume-bulletins">-</div>
+                            <div class="stat-label">Bulletins Generes</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stat-value" id="resume-masse">-</div>
+                            <div class="stat-label">Masse Salariale</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stat-value" id="resume-primes">-</div>
+                            <div class="stat-label">Total Primes</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stat-value" id="resume-net">-</div>
+                            <div class="stat-label">Total Net</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Detail Bulletin -->
+    <div class="modal-overlay" id="modal-bulletin">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Detail du Bulletin</h3>
+                <button class="modal-close" onclick="closeModal('modal-bulletin')">&times;</button>
+            </div>
+            <div class="modal-body" id="bulletin-detail">
+                <!-- Contenu genere dynamiquement -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-bulletin')">Fermer</button>
+                <button type="button" class="btn btn-primary" onclick="printBulletin()">Imprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Verifier l'authentification
+        if (!requireAuth()) {}
+
+        let currentBulletin = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserInfo();
+            initFilters();
+            loadEmployesList();
+            loadBulletins();
+        });
+
+        // Charger les infos utilisateur
+        function loadUserInfo() {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-info').textContent = `${user.prenom} ${user.nom} (${user.role.toUpperCase()})`;
+            }
+        }
+
+        // Initialiser les filtres
+        function initFilters() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+
+            // Generation
+            document.getElementById('gen-mois').value = currentMonth;
+
+            // Annees pour generation
+            const selectGenAnnee = document.getElementById('gen-annee');
+            for (let y = currentYear; y >= currentYear - 2; y--) {
+                const option = document.createElement('option');
+                option.value = y;
+                option.textContent = y;
+                selectGenAnnee.appendChild(option);
+            }
+            selectGenAnnee.value = currentYear;
+
+            // Annees pour filtre
+            const selectFilterAnnee = document.getElementById('filter-annee');
+            for (let y = currentYear; y >= currentYear - 2; y--) {
+                const option = document.createElement('option');
+                option.value = y;
+                option.textContent = y;
+                selectFilterAnnee.appendChild(option);
+            }
+            selectFilterAnnee.value = currentYear;
+
+            // Mois par defaut pour filtre
+            document.getElementById('filter-mois').value = currentMonth;
+        }
+
+        // Charger la liste des employes
+        async function loadEmployesList() {
+            try {
+                const response = await API.getEmployes();
+                if (response.success) {
+                    const selectGen = document.getElementById('gen-employe');
+                    const selectFilter = document.getElementById('filter-employe');
+                    const employes = response.data.data || response.data || [];
+
+                    employes.forEach(e => {
+                        const option1 = document.createElement('option');
+                        option1.value = e.id;
+                        option1.textContent = `${e.prenom} ${e.nom}`;
+                        selectGen.appendChild(option1);
+
+                        const option2 = document.createElement('option');
+                        option2.value = e.id;
+                        option2.textContent = `${e.prenom} ${e.nom}`;
+                        selectFilter.appendChild(option2);
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur chargement employes:', error);
+            }
+        }
+
+        // Generer les bulletins
+        async function generateBulletins() {
+            const mois = document.getElementById('gen-mois').value;
+            const annee = document.getElementById('gen-annee').value;
+            const employe = document.getElementById('gen-employe').value;
+
+            showLoading();
+            try {
+                let response;
+                if (employe) {
+                    response = await API.generateBulletin(employe, mois, annee);
+                } else {
+                    response = await API.generateAllBulletins(mois, annee);
+                }
+
+                if (response.success) {
+                    const count = response.data.bulletins_generes || 1;
+                    showAlert('alert-container', `${count} bulletin(s) genere(s) avec succes`, 'success');
+                    loadBulletins();
+                } else {
+                    showAlert('alert-container', response.message || 'Erreur lors de la generation', 'danger');
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion au serveur', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Charger les bulletins
+        async function loadBulletins() {
+            showLoading();
+
+            const params = {};
+            const mois = document.getElementById('filter-mois').value;
+            const annee = document.getElementById('filter-annee').value;
+            const employe = document.getElementById('filter-employe').value;
+
+            if (mois) params.mois = mois;
+            if (annee) params.annee = annee;
+            if (employe) params.user_id = employe;
+
+            try {
+                const response = await API.getBulletins(params);
+
+                if (response.success) {
+                    // Gerer le format pagine de Laravel
+                    const bulletins = response.data.data || response.data.bulletins || response.data || [];
+                    renderBulletins(bulletins);
+                    updateResume(bulletins);
+                } else {
+                    showAlert('alert-container', response.message || 'Erreur', 'danger');
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion au serveur', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Afficher les bulletins
+        function renderBulletins(bulletins) {
+            const tbody = document.getElementById('table-bulletins');
+
+            if (!bulletins || bulletins.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Aucun bulletin trouve</td></tr>';
+                return;
+            }
+
+            const moisNoms = ['', 'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
+
+            tbody.innerHTML = bulletins.map(b => `
+                <tr>
+                    <td>${b.user ? b.user.prenom + ' ' + b.user.nom : 'N/A'}</td>
+                    <td>${moisNoms[b.mois]} ${b.annee}</td>
+                    <td>${formatMoney(b.salaire_base)}</td>
+                    <td>${b.heures_normales || 0}h</td>
+                    <td>${b.heures_supplementaires || 0}h</td>
+                    <td>${formatMoney(b.prime_supplementaires || 0)}</td>
+                    <td><strong>${formatMoney(b.salaire_net)}</strong></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewBulletin(${b.id})" title="Voir">
+                            👁️
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Mettre a jour le resume
+        function updateResume(bulletins) {
+            const total = bulletins.length;
+            const masse = bulletins.reduce((sum, b) => sum + parseFloat(b.salaire_base || 0), 0);
+            const primes = bulletins.reduce((sum, b) => sum + parseFloat(b.prime_supplementaires || 0), 0);
+            const net = bulletins.reduce((sum, b) => sum + parseFloat(b.salaire_net || 0), 0);
+
+            document.getElementById('resume-bulletins').textContent = total;
+            document.getElementById('resume-masse').textContent = formatMoney(masse);
+            document.getElementById('resume-primes').textContent = formatMoney(primes);
+            document.getElementById('resume-net').textContent = formatMoney(net);
+        }
+
+        // Voir un bulletin
+        async function viewBulletin(id) {
+            showLoading();
+            try {
+                const response = await API.getBulletin(id);
+
+                if (response.success) {
+                    currentBulletin = response.data;
+                    renderBulletinDetail(response.data);
+                    document.getElementById('modal-bulletin').classList.add('active');
+                } else {
+                    showAlert('alert-container', response.message || 'Erreur', 'danger');
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Afficher le detail du bulletin
+        function renderBulletinDetail(b) {
+            const moisNoms = ['', 'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
+
+            const html = `
+                <div class="bulletin-print" id="bulletin-print">
+                    <div class="text-center mb-2">
+                        <h2>BULLETIN DE PAIE</h2>
+                        <p class="text-muted">${moisNoms[b.mois]} ${b.annee}</p>
+                    </div>
+
+                    <div class="mb-2">
+                        <h4>Informations Employe</h4>
+                        <p><strong>Nom:</strong> ${b.user ? b.user.prenom + ' ' + b.user.nom : 'N/A'}</p>
+                        <p><strong>Matricule:</strong> ${b.user ? b.user.matricule : 'N/A'}</p>
+                        <p><strong>Email:</strong> ${b.user ? b.user.email : 'N/A'}</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-2">
+                        <h4>Details du Salaire</h4>
+                        <table class="table">
+                            <tr>
+                                <td>Salaire de base</td>
+                                <td class="text-right">${formatMoney(b.salaire_base)}</td>
+                            </tr>
+                            <tr>
+                                <td>Heures normales travaillees</td>
+                                <td class="text-right">${b.heures_normales || 0}h</td>
+                            </tr>
+                            <tr>
+                                <td>Heures supplementaires</td>
+                                <td class="text-right">${b.heures_supplementaires || 0}h</td>
+                            </tr>
+                            <tr>
+                                <td>Prime heures supplementaires</td>
+                                <td class="text-right">${formatMoney(b.prime_supplementaires || 0)}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-2">
+                        <table class="table">
+                            <tr>
+                                <td><strong>TOTAL BRUT</strong></td>
+                                <td class="text-right"><strong>${formatMoney(parseFloat(b.salaire_base) + parseFloat(b.prime_supplementaires || 0))}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Deductions</td>
+                                <td class="text-right">${formatMoney(b.deductions || 0)}</td>
+                            </tr>
+                            <tr style="background: #e8f5e9;">
+                                <td><strong>NET A PAYER</strong></td>
+                                <td class="text-right"><strong style="font-size: 1.2em;">${formatMoney(b.salaire_net)}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="text-center text-muted mt-2" style="font-size: 12px;">
+                        <p>Genere le ${formatDateTime(b.created_at)}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('bulletin-detail').innerHTML = html;
+        }
+
+        // Imprimer le bulletin
+        function printBulletin() {
+            const content = document.getElementById('bulletin-print').innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Bulletin de Paie</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h2 { color: #2c3e50; }
+                        h4 { color: #34495e; margin-top: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        td { padding: 8px; border-bottom: 1px solid #ddd; }
+                        .text-right { text-align: right; }
+                        .text-center { text-align: center; }
+                        .text-muted { color: #7f8c8d; }
+                        hr { border: none; border-top: 1px solid #ddd; margin: 15px 0; }
+                        .mb-2 { margin-bottom: 15px; }
+                        .mt-2 { margin-top: 15px; }
+                    </style>
+                </head>
+                <body>
+                    ${content}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Fermer modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Deconnexion
+        async function logout() {
+            showLoading();
+            try {
+                await API.logout();
+            } catch (e) {}
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

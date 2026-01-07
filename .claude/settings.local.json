@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(tree:*)",
+      "Bash(php -v:*)",
+      "Bash(composer:*)",
+      "Bash(mysql:*)",
+      "Bash(\"C:/xampp/mysql/bin/mysql.exe\":*)",
+      "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root -e \"SHOW DATABASES LIKE ''pointage_db'';\")",
+      "Bash(php artisan migrate:fresh:*)",
+      "Bash(php artisan vendor:publish:*)",
+      "Bash(php artisan migrate:*)",
+      "Bash(php artisan:*)",
+      "Bash(curl:*)",
+      "Bash(python -m http.server:*)",
+      "Bash(timeout:*)",
+      "Bash(if [ -f \"c:/Users/JOACHIM/Documents/PSDHDT/mobile-app/pubspec.yaml\" ])",
+      "Bash(then cat \"c:/Users/JOACHIM/Documents/PSDHDT/mobile-app/pubspec.yaml\")",
+      "Bash(else echo \"FILE_NOT_EXISTS\")",
+      "Bash(fi)",
+      "Bash(if [ -f \"c:/Users/JOACHIM/Documents/PSDHDT/mobile-app/lib/main.dart\" ])",
+      "Bash(then cat \"c:/Users/JOACHIM/Documents/PSDHDT/mobile-app/lib/main.dart\")",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+name: pointage_app
+description: Application de pointage des employes par QR code
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.6
+
+  # QR Code Scanner (mobile_scanner est plus stable)
+  mobile_scanner: ^3.5.5
+
+  # QR Code Generator
+  qr_flutter: ^4.1.0
+
+  # HTTP requests
+  http: ^1.1.0
+
+  # State management
+  provider: ^6.1.1
+
+  # Local storage
+  shared_preferences: ^2.2.2
+
+  # Intl for date formatting
+  intl: ^0.18.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true

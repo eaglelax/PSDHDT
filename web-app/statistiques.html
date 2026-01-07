@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques - Pointage RH</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Pointage RH</h2>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="employes.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Employes</span>
+            </a>
+            <a href="pointages.html" class="nav-item">
+                <span class="nav-icon">⏱️</span>
+                <span class="nav-text">Pointages</span>
+            </a>
+            <a href="statistiques.html" class="nav-item active">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">Statistiques</span>
+            </a>
+            <a href="bulletins.html" class="nav-item">
+                <span class="nav-icon">📄</span>
+                <span class="nav-text">Bulletins</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Deconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">Statistiques</h1>
+            <div class="header-actions">
+                <span class="user-info" id="user-info">Chargement...</span>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+            <div id="alert-container"></div>
+
+            <!-- Filtres -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Periode</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-4">
+                        <div class="form-group">
+                            <label>Mois</label>
+                            <select class="form-control" id="filter-mois">
+                                <option value="1">Janvier</option>
+                                <option value="2">Fevrier</option>
+                                <option value="3">Mars</option>
+                                <option value="4">Avril</option>
+                                <option value="5">Mai</option>
+                                <option value="6">Juin</option>
+                                <option value="7">Juillet</option>
+                                <option value="8">Aout</option>
+                                <option value="9">Septembre</option>
+                                <option value="10">Octobre</option>
+                                <option value="11">Novembre</option>
+                                <option value="12">Decembre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Annee</label>
+                            <select class="form-control" id="filter-annee">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary" onclick="loadStats()">Actualiser</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats globales -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">👥</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-employes">-</span>
+                        <span class="stat-label">Total Employes</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">📅</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-jours">-</span>
+                        <span class="stat-label">Jours Travailles</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">⏰</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-heures-total">-</span>
+                        <span class="stat-label">Total Heures</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon red">💰</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-salaires">-</span>
+                        <span class="stat-label">Masse Salariale</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats detaillees -->
+            <div class="grid grid-2 mt-2">
+                <!-- Presences -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Taux de Presence</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress-list" id="presences-list">
+                            <div class="text-center text-muted">Chargement...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heures -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Repartition des Heures</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-breakdown">
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Heures Normales</span>
+                                <span class="breakdown-value" id="heures-normales">-</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Heures Supplementaires</span>
+                                <span class="breakdown-value" id="heures-sup">-</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Moyenne par jour</span>
+                                <span class="breakdown-value" id="heures-moyenne">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Employes -->
+            <div class="grid grid-2 mt-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Top 5 - Plus d'Heures</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Employe</th>
+                                        <th>Heures</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-heures">
+                                    <tr>
+                                        <td colspan="3" class="text-center">Chargement...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Top 5 - Meilleure Assiduite</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Employe</th>
+                                        <th>Taux</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-assiduite">
+                                    <tr>
+                                        <td colspan="3" class="text-center">Chargement...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resume Salaires -->
+            <div class="card mt-2">
+                <div class="card-header">
+                    <h3 class="card-title">Resume des Salaires</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employe</th>
+                                    <th>Salaire Base</th>
+                                    <th>Heures Normales</th>
+                                    <th>Heures Sup</th>
+                                    <th>Prime Sup</th>
+                                    <th>Total Estime</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-salaires">
+                                <tr>
+                                    <td colspan="6" class="text-center">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Verifier l'authentification
+        if (!requireAuth()) {}
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserInfo();
+            initFilters();
+            loadStats();
+        });
+
+        // Charger les infos utilisateur
+        function loadUserInfo() {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-info').textContent = `${user.prenom} ${user.nom} (${user.role.toUpperCase()})`;
+            }
+        }
+
+        // Initialiser les filtres
+        function initFilters() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+
+            // Mois
+            document.getElementById('filter-mois').value = currentMonth;
+
+            // Annees (3 dernieres annees)
+            const selectAnnee = document.getElementById('filter-annee');
+            for (let y = currentYear; y >= currentYear - 2; y--) {
+                const option = document.createElement('option');
+                option.value = y;
+                option.textContent = y;
+                selectAnnee.appendChild(option);
+            }
+            selectAnnee.value = currentYear;
+        }
+
+        // Charger les statistiques
+        async function loadStats() {
+            showLoading();
+
+            const mois = document.getElementById('filter-mois').value;
+            const annee = document.getElementById('filter-annee').value;
+            const params = { mois, annee };
+
+            try {
+                const [presencesRes, heuresRes, salairesRes] = await Promise.all([
+                    API.getStatsPresences(params),
+                    API.getStatsHeures(params),
+                    API.getStatsSalaires(params)
+                ]);
+
+                // Stats presences
+                if (presencesRes.success) {
+                    updatePresenceStats(presencesRes.data);
+                }
+
+                // Stats heures
+                if (heuresRes.success) {
+                    updateHeuresStats(heuresRes.data);
+                }
+
+                // Stats salaires
+                if (salairesRes.success) {
+                    updateSalairesStats(salairesRes.data);
+                }
+            } catch (error) {
+                showAlert('alert-container', 'Erreur de connexion au serveur', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Mettre a jour les stats de presence
+        function updatePresenceStats(data) {
+            const employes = data.employes || [];
+            document.getElementById('stat-employes').textContent = employes.length || data.total_employes || 0;
+            document.getElementById('stat-jours').textContent = data.periode?.jours_ouvres || data.jours_travailles || 0;
+
+            // Liste des presences par employe
+            const list = document.getElementById('presences-list');
+            const employesList = data.employes || data.par_employe || [];
+            if (employesList.length > 0) {
+                list.innerHTML = employesList.slice(0, 5).map(e => `
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span>${e.nom_complet}</span>
+                            <span>${e.taux_presence || 0}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${e.taux_presence || 0}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = '<div class="text-center text-muted">Aucune donnee</div>';
+            }
+
+            // Top assiduite
+            const topAssiduite = document.getElementById('top-assiduite');
+            if (employesList.length > 0) {
+                const sorted = [...employesList].sort((a, b) => (b.taux_presence || 0) - (a.taux_presence || 0));
+                topAssiduite.innerHTML = sorted.slice(0, 5).map((e, i) => `
+                    <tr>
+                        <td><span class="badge badge-${i === 0 ? 'success' : 'secondary'}">${i + 1}</span></td>
+                        <td>${e.nom_complet}</td>
+                        <td><strong>${e.taux_presence || 0}%</strong></td>
+                    </tr>
+                `).join('');
+            } else {
+                topAssiduite.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Aucune donnee</td></tr>';
+            }
+        }
+
+        // Mettre a jour les stats d'heures
+        function updateHeuresStats(data) {
+            const totaux = data.totaux || {};
+            const totalHeures = (totaux.heures_normales || data.heures_normales || 0) + (totaux.heures_sup || data.heures_supplementaires || 0);
+            document.getElementById('stat-heures-total').textContent = totalHeures + 'h';
+            document.getElementById('heures-normales').textContent = (totaux.heures_normales || data.heures_normales || 0) + 'h';
+            document.getElementById('heures-sup').textContent = (totaux.heures_sup || data.heures_supplementaires || 0) + 'h';
+            document.getElementById('heures-moyenne').textContent = (data.moyenne_journaliere || 0) + 'h';
+
+            // Top heures - utiliser les employes de presences car heures n'a pas par_employe
+            const topHeures = document.getElementById('top-heures');
+            const parJour = data.par_jour || [];
+            if (parJour.length > 0) {
+                // Afficher les jours avec le plus d'heures
+                const sorted = [...parJour].sort((a, b) => ((b.heures_normales || 0) + (b.heures_sup || 0)) - ((a.heures_normales || 0) + (a.heures_sup || 0)));
+                topHeures.innerHTML = sorted.slice(0, 5).map((e, i) => `
+                    <tr>
+                        <td><span class="badge badge-${i === 0 ? 'primary' : 'secondary'}">${i + 1}</span></td>
+                        <td>${formatDate(e.date)}</td>
+                        <td><strong>${(e.heures_normales || 0) + (e.heures_sup || 0)}h</strong></td>
+                    </tr>
+                `).join('');
+            } else {
+                topHeures.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Aucune donnee</td></tr>';
+            }
+        }
+
+        // Mettre a jour les stats de salaires
+        function updateSalairesStats(data) {
+            const totaux = data.totaux || {};
+            document.getElementById('stat-salaires').textContent = formatMoney(totaux.salaires_nets || data.masse_salariale || 0);
+
+            // Table des salaires - utiliser bulletins
+            const tbody = document.getElementById('table-salaires');
+            const bulletins = data.bulletins || data.par_employe || [];
+            if (bulletins.length > 0) {
+                tbody.innerHTML = bulletins.map(e => `
+                    <tr>
+                        <td>${e.user ? e.user.prenom + ' ' + e.user.nom : (e.nom_complet || 'N/A')}</td>
+                        <td>${formatMoney(e.salaire_base)}</td>
+                        <td>${e.heures_normales || 0}h</td>
+                        <td>${e.heures_supplementaires || 0}h</td>
+                        <td>${formatMoney(e.montant_heures_sup || e.prime_supplementaires || 0)}</td>
+                        <td><strong>${formatMoney(e.salaire_net || e.salaire_total || e.salaire_base)}</strong></td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Aucune donnee - Generez des bulletins d\'abord</td></tr>';
+            }
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Deconnexion
+        async function logout() {
+            showLoading();
+            try {
+                await API.logout();
+            } catch (e) {}
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
