@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration Entreprise - Pointage RH</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Styles spécifiques à la page admin */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+
+        .preview-card {
+            position: sticky;
+            top: 100px;
+        }
+
+        .preview-container {
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .preview-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-lg);
+            object-fit: contain;
+            background: var(--white);
+            border: 2px dashed var(--gray-300);
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: var(--radius);
+        }
+
+        .preview-logo.has-logo {
+            border: none;
+            background: transparent;
+        }
+
+        .preview-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 24px;
+        }
+
+        .preview-colors {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .preview-color {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        .preview-color::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: var(--gray-500);
+            white-space: nowrap;
+        }
+
+        .preview-sidebar {
+            background: linear-gradient(180deg, var(--preview-primary, #1a73e8) 0%, color-mix(in srgb, var(--preview-primary, #1a73e8) 70%, black) 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            color: white;
+            text-align: left;
+            margin-top: 32px;
+        }
+
+        .preview-sidebar-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .preview-nav-item {
+            padding: 10px 12px;
+            border-radius: var(--radius);
+            margin-bottom: 4px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .preview-nav-item.active {
+            background: var(--preview-accent, #34a853);
+            opacity: 1;
+        }
+
+        /* Color picker styles */
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .color-picker {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker::-webkit-color-swatch {
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+        }
+
+        .color-hex-input {
+            flex: 1;
+            text-transform: uppercase;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        /* Logo upload */
+        .logo-upload-zone {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--gray-50);
+        }
+
+        .logo-upload-zone:hover {
+            border-color: var(--theme-primary);
+            background: rgba(26, 115, 232, 0.05);
+        }
+
+        .logo-upload-zone.dragover {
+            border-color: var(--theme-primary);
+            background: rgba(26, 115, 232, 0.1);
+        }
+
+        .logo-upload-icon {
+            font-size: 48px;
+            color: var(--gray-400);
+            margin-bottom: 12px;
+        }
+
+        .logo-upload-text {
+            color: var(--gray-600);
+            font-size: 14px;
+        }
+
+        .logo-upload-text span {
+            color: var(--theme-primary);
+            font-weight: 600;
+        }
+
+        .logo-preview-container {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+        }
+
+        .logo-preview-container.visible {
+            display: flex;
+        }
+
+        .logo-preview-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: var(--radius);
+            background: white;
+            padding: 8px;
+        }
+
+        .logo-preview-info {
+            flex: 1;
+        }
+
+        .logo-preview-name {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+
+        .logo-preview-size {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        /* Section divider */
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        /* Actions */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* Contact info */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 992px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-card {
+                position: static;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="" alt="Logo" class="company-logo" style="height: 40px; margin-bottom: 8px; display: none;">
+            <h2 class="company-name">Pointage RH</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="employes.html" class="nav-item">
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+                <span class="nav-text">Employes</span>
+            </a>
+            <a href="pointages.html" class="nav-item">
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
+                <span class="nav-text">Pointages</span>
+            </a>
+            <a href="statistiques.html" class="nav-item">
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span>
+                <span class="nav-text">Statistiques</span>
+            </a>
+            <a href="bulletins.html" class="nav-item">
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span>
+                <span class="nav-text">Bulletins</span>
+            </a>
+            <div style="margin: 16px 12px; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+            <a href="admin-entreprise.html" class="nav-item active">
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
+                <span class="nav-text">Administration</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" onclick="logout()">
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                <span class="nav-text">Deconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <button class="menu-toggle" onclick="toggleSidebar()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+            <h1 class="page-title">Administration Entreprise</h1>
+            <div class="user-info">
+                <span id="userRole">Directeur</span>
+                <span id="userName">Chargement...</span>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Alert container -->
+            <div id="alertContainer"></div>
+
+            <div class="admin-grid">
+                <!-- Formulaire de configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Configuration de l'entreprise</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="entrepriseForm">
+                            <!-- Identité -->
+                            <div class="section-title">Identité</div>
+
+                            <div class="form-group">
+                                <label for="nom">Nom de l'entreprise</label>
+                                <input type="text" id="nom" name="nom" class="form-control"
+                                       placeholder="Ex: Ma Super Entreprise" maxlength="255">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Logo de l'entreprise</label>
+                                <div class="logo-upload-zone" id="logoUploadZone">
+                                    <div class="logo-upload-icon">📷</div>
+                                    <div class="logo-upload-text">
+                                        Glissez votre logo ici ou <span>parcourir</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: var(--gray-400); margin-top: 8px;">
+                                        JPG, PNG ou SVG (max 2 Mo)
+                                    </div>
+                                    <input type="file" id="logoInput" accept="image/*" style="display: none;">
+                                </div>
+                                <div class="logo-preview-container" id="logoPreviewContainer">
+                                    <img src="" alt="Logo" class="logo-preview-img" id="logoPreviewImg">
+                                    <div class="logo-preview-info">
+                                        <div class="logo-preview-name" id="logoPreviewName"></div>
+                                        <div class="logo-preview-size" id="logoPreviewSize"></div>
+                                    </div>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeLogo()">
+                                        Supprimer
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Couleurs -->
+                            <div class="section-title" style="margin-top: 32px;">Couleurs du thème</div>
+
+                            <div class="form-group">
+                                <label for="couleur_primaire">Couleur primaire</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="couleur_primaire_picker" class="color-picker" value="#1a73e8">
+                                    <input type="text" id="couleur_primaire" name="couleur_primaire"
+                                           class="form-control color-hex-input" placeholder="#1a73e8" maxlength="7">
+                                </div>
+                                <small class="text-muted">Utilisée pour la sidebar et les éléments principaux</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="couleur_secondaire">Couleur secondaire</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="couleur_secondaire_picker" class="color-picker" value="#4285f4">
+                                    <input type="text" id="couleur_secondaire" name="couleur_secondaire"
+                                           class="form-control color-hex-input" placeholder="#4285f4" maxlength="7">
+                                </div>
+                                <small class="text-muted">Utilisée pour les dégradés et accents</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="couleur_accent">Couleur d'accent</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="couleur_accent_picker" class="color-picker" value="#34a853">
+                                    <input type="text" id="couleur_accent" name="couleur_accent"
+                                           class="form-control color-hex-input" placeholder="#34a853" maxlength="7">
+                                </div>
+                                <small class="text-muted">Utilisée pour les éléments actifs et les actions</small>
+                            </div>
+
+                            <!-- Contact -->
+                            <div class="section-title" style="margin-top: 32px;">Coordonnées</div>
+
+                            <div class="contact-grid">
+                                <div class="form-group">
+                                    <label for="email_contact">Email de contact</label>
+                                    <input type="email" id="email_contact" name="email_contact"
+                                           class="form-control" placeholder="contact@entreprise.com">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="telephone">Téléphone</label>
+                                    <input type="text" id="telephone" name="telephone"
+                                           class="form-control" placeholder="+213 555 123 456">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="adresse">Adresse</label>
+                                <textarea id="adresse" name="adresse" class="form-control"
+                                          rows="2" placeholder="123 Rue Principale, Ville, Pays"></textarea>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    Enregistrer les modifications
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="resetColors()">
+                                    Réinitialiser les couleurs
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Aperçu -->
+                <div class="preview-card">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Aperçu en temps réel</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-container">
+                                <div class="preview-logo" id="previewLogo">
+                                    <span style="color: var(--gray-400); font-size: 24px;">📷</span>
+                                </div>
+                                <div class="preview-name" id="previewName">Mon Entreprise</div>
+
+                                <div class="preview-colors">
+                                    <div class="preview-color" id="previewColorPrimary" data-label="Primaire"></div>
+                                    <div class="preview-color" id="previewColorSecondary" data-label="Secondaire"></div>
+                                    <div class="preview-color" id="previewColorAccent" data-label="Accent"></div>
+                                </div>
+
+                                <div class="preview-sidebar" id="previewSidebar">
+                                    <div class="preview-sidebar-header" id="previewSidebarName">Mon Entreprise</div>
+                                    <div class="preview-nav-item">📊 Tableau de bord</div>
+                                    <div class="preview-nav-item active">👥 Employés</div>
+                                    <div class="preview-nav-item">⏱️ Pointages</div>
+                                    <div class="preview-nav-item">📄 Bulletins</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/theme.js"></script>
+    <script>
+        // Variables globales
+        let currentConfig = null;
+        let selectedLogoFile = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!checkAuth()) return;
+
+            // Vérifier que l'utilisateur est admin
+            const user = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.USER) || '{}');
+            if (!['directeur', 'rh'].includes(user.role)) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            document.getElementById('userName').textContent = `${user.prenom} ${user.nom}`;
+            document.getElementById('userRole').textContent = user.role === 'directeur' ? 'Directeur' : 'RH';
+
+            await loadConfig();
+            setupEventListeners();
+        });
+
+        // Charger la configuration
+        async function loadConfig() {
+            showLoading(true);
+            try {
+                const response = await api.get('/entreprise');
+                if (response.success) {
+                    currentConfig = response.data;
+                    populateForm(currentConfig);
+                    updatePreview();
+                }
+            } catch (error) {
+                showAlert('Erreur lors du chargement de la configuration', 'danger');
+            }
+            showLoading(false);
+        }
+
+        // Remplir le formulaire
+        function populateForm(config) {
+            document.getElementById('nom').value = config.nom || '';
+            document.getElementById('email_contact').value = config.email_contact || '';
+            document.getElementById('telephone').value = config.telephone || '';
+            document.getElementById('adresse').value = config.adresse || '';
+
+            // Couleurs
+            setColorInputs('couleur_primaire', config.couleur_primaire || '#1a73e8');
+            setColorInputs('couleur_secondaire', config.couleur_secondaire || '#4285f4');
+            setColorInputs('couleur_accent', config.couleur_accent || '#34a853');
+
+            // Logo
+            if (config.logo_url) {
+                showLogoPreview(config.logo_url, 'Logo actuel');
+            }
+        }
+
+        // Définir les valeurs des inputs couleur
+        function setColorInputs(name, value) {
+            document.getElementById(name).value = value;
+            document.getElementById(name + '_picker').value = value;
+        }
+
+        // Configurer les event listeners
+        function setupEventListeners() {
+            // Formulaire
+            document.getElementById('entrepriseForm').addEventListener('submit', handleSubmit);
+
+            // Synchronisation color picker <-> input text
+            ['couleur_primaire', 'couleur_secondaire', 'couleur_accent'].forEach(name => {
+                const picker = document.getElementById(name + '_picker');
+                const input = document.getElementById(name);
+
+                picker.addEventListener('input', (e) => {
+                    input.value = e.target.value.toUpperCase();
+                    updatePreview();
+                    previewTheme();
+                });
+
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                        picker.value = value;
+                        updatePreview();
+                        previewTheme();
+                    }
+                });
+            });
+
+            // Nom
+            document.getElementById('nom').addEventListener('input', updatePreview);
+
+            // Logo upload
+            const uploadZone = document.getElementById('logoUploadZone');
+            const logoInput = document.getElementById('logoInput');
+
+            uploadZone.addEventListener('click', () => logoInput.click());
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    handleLogoFile(file);
+                }
+            });
+
+            logoInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    handleLogoFile(e.target.files[0]);
+                }
+            });
+        }
+
+        // Gérer le fichier logo
+        function handleLogoFile(file) {
+            if (file.size > 2 * 1024 * 1024) {
+                showAlert('Le fichier est trop volumineux (max 2 Mo)', 'warning');
+                return;
+            }
+
+            selectedLogoFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                showLogoPreview(e.target.result, file.name, formatFileSize(file.size));
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Afficher l'aperçu du logo
+        function showLogoPreview(src, name, size = '') {
+            document.getElementById('logoUploadZone').style.display = 'none';
+            document.getElementById('logoPreviewContainer').classList.add('visible');
+            document.getElementById('logoPreviewImg').src = src;
+            document.getElementById('logoPreviewName').textContent = name;
+            document.getElementById('logoPreviewSize').textContent = size;
+
+            // Mettre à jour l'aperçu
+            const previewLogo = document.getElementById('previewLogo');
+            previewLogo.innerHTML = `<img src="${src}" alt="Logo">`;
+            previewLogo.classList.add('has-logo');
+        }
+
+        // Supprimer le logo
+        async function removeLogo() {
+            if (currentConfig && currentConfig.logo) {
+                try {
+                    await api.delete('/entreprise/logo');
+                    showAlert('Logo supprimé', 'success');
+                } catch (error) {
+                    showAlert('Erreur lors de la suppression', 'danger');
+                    return;
+                }
+            }
+
+            selectedLogoFile = null;
+            document.getElementById('logoUploadZone').style.display = 'block';
+            document.getElementById('logoPreviewContainer').classList.remove('visible');
+            document.getElementById('logoInput').value = '';
+
+            const previewLogo = document.getElementById('previewLogo');
+            previewLogo.innerHTML = '<span style="color: var(--gray-400); font-size: 24px;">📷</span>';
+            previewLogo.classList.remove('has-logo');
+        }
+
+        // Mettre à jour l'aperçu
+        function updatePreview() {
+            const nom = document.getElementById('nom').value || 'Mon Entreprise';
+            const primaire = document.getElementById('couleur_primaire').value || '#1a73e8';
+            const secondaire = document.getElementById('couleur_secondaire').value || '#4285f4';
+            const accent = document.getElementById('couleur_accent').value || '#34a853';
+
+            // Nom
+            document.getElementById('previewName').textContent = nom;
+            document.getElementById('previewSidebarName').textContent = nom;
+
+            // Couleurs preview
+            document.getElementById('previewColorPrimary').style.background = primaire;
+            document.getElementById('previewColorSecondary').style.background = secondaire;
+            document.getElementById('previewColorAccent').style.background = accent;
+
+            // Sidebar preview
+            const sidebar = document.getElementById('previewSidebar');
+            sidebar.style.setProperty('--preview-primary', primaire);
+            sidebar.style.background = `linear-gradient(180deg, ${primaire} 0%, ${darkenColor(primaire, 30)} 100%)`;
+
+            // Nav item actif
+            const activeItem = document.querySelector('.preview-nav-item.active');
+            if (activeItem) {
+                activeItem.style.background = accent;
+            }
+        }
+
+        // Prévisualiser le thème sur la vraie page
+        function previewTheme() {
+            const config = {
+                couleur_primaire: document.getElementById('couleur_primaire').value,
+                couleur_secondaire: document.getElementById('couleur_secondaire').value,
+                couleur_accent: document.getElementById('couleur_accent').value
+            };
+            ThemeService.previewTheme(config);
+        }
+
+        // Assombrir une couleur
+        function darkenColor(hex, percent) {
+            const num = parseInt(hex.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.max((num >> 16) - amt, 0);
+            const G = Math.max((num >> 8 & 0x00FF) - amt, 0);
+            const B = Math.max((num & 0x0000FF) - amt, 0);
+            return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+        }
+
+        // Formater la taille de fichier
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' octets';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+        }
+
+        // Soumettre le formulaire
+        async function handleSubmit(e) {
+            e.preventDefault();
+            showLoading(true);
+
+            try {
+                // Upload du logo si sélectionné
+                if (selectedLogoFile) {
+                    const formData = new FormData();
+                    formData.append('logo', selectedLogoFile);
+
+                    const token = localStorage.getItem(CONFIG.STORAGE_KEYS.TOKEN);
+                    const logoResponse = await fetch(CONFIG.API_URL + '/entreprise/logo', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: formData
+                    });
+
+                    if (!logoResponse.ok) {
+                        throw new Error('Erreur upload logo');
+                    }
+
+                    selectedLogoFile = null;
+                }
+
+                // Mettre à jour les autres infos
+                const data = {
+                    nom: document.getElementById('nom').value,
+                    couleur_primaire: document.getElementById('couleur_primaire').value,
+                    couleur_secondaire: document.getElementById('couleur_secondaire').value,
+                    couleur_accent: document.getElementById('couleur_accent').value,
+                    email_contact: document.getElementById('email_contact').value,
+                    telephone: document.getElementById('telephone').value,
+                    adresse: document.getElementById('adresse').value
+                };
+
+                const response = await api.put('/entreprise', data);
+
+                if (response.success) {
+                    currentConfig = response.data;
+                    showAlert('Configuration enregistrée avec succès', 'success');
+
+                    // Recharger le thème
+                    await ThemeService.loadTheme();
+                }
+            } catch (error) {
+                showAlert('Erreur lors de l\'enregistrement: ' + error.message, 'danger');
+            }
+
+            showLoading(false);
+        }
+
+        // Réinitialiser les couleurs
+        async function resetColors() {
+            if (!confirm('Réinitialiser les couleurs par défaut ?')) return;
+
+            showLoading(true);
+            try {
+                const response = await api.post('/entreprise/reset-colors');
+                if (response.success) {
+                    setColorInputs('couleur_primaire', '#1a73e8');
+                    setColorInputs('couleur_secondaire', '#4285f4');
+                    setColorInputs('couleur_accent', '#34a853');
+                    updatePreview();
+                    await ThemeService.loadTheme();
+                    showAlert('Couleurs réinitialisées', 'success');
+                }
+            } catch (error) {
+                showAlert('Erreur lors de la réinitialisation', 'danger');
+            }
+            showLoading(false);
+        }
+
+        // Afficher une alerte
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Afficher/masquer le loading
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        // Toggle sidebar (mobile)
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Déconnexion
+        function logout() {
+            localStorage.removeItem(CONFIG.STORAGE_KEYS.TOKEN);
+            localStorage.removeItem(CONFIG.STORAGE_KEYS.USER);
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

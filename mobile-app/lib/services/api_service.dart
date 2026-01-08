@@ -44,14 +44,25 @@ class ApiService {
   Future<Map<String, dynamic>> post(String endpoint,
       {Map<String, dynamic>? body}) async {
     try {
+      final uri = Uri.parse('${Config.apiUrl}$endpoint');
+      final headers = await _getHeaders();
+
+      print('POST Request: $uri');
+      print('Headers: $headers');
+      if (body != null) print('Body: ${jsonEncode(body)}');
+
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}$endpoint'),
-        headers: await _getHeaders(),
+        uri,
+        headers: headers,
         body: body != null ? jsonEncode(body) : null,
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       return _handleResponse(response);
     } catch (e) {
+      print('POST Error: $e');
       return {'success': false, 'message': 'Erreur de connexion: $e'};
     }
   }
@@ -118,7 +129,7 @@ class ApiService {
 
   // Connexion
   Future<Map<String, dynamic>> login(String email, String password) async {
-    return await post('/login', body: {
+    return await post('/auth/login', body: {
       'email': email,
       'password': password,
     });
@@ -126,31 +137,31 @@ class ApiService {
 
   // Deconnexion
   Future<Map<String, dynamic>> logout() async {
-    final result = await post('/logout');
+    final result = await post('/auth/logout');
     await _authService.logout();
     return result;
   }
 
   // Profil utilisateur
   Future<Map<String, dynamic>> getProfile() async {
-    return await get('/me');
+    return await get('/auth/me');
   }
 
   // Scanner un QR code (pour employe)
   Future<Map<String, dynamic>> scanQrCode(String qrCode) async {
-    return await post('/pointages/scan', body: {
+    return await post('/pointages', body: {
       'qr_code': qrCode,
     });
   }
 
   // Generer un QR code (pour gardien)
   Future<Map<String, dynamic>> generateQrCode() async {
-    return await post('/qr-codes/generate');
+    return await post('/qrcode/generate');
   }
 
   // Obtenir le QR code actif
   Future<Map<String, dynamic>> getActiveQrCode() async {
-    return await get('/qr-codes/active');
+    return await get('/qrcode/current');
   }
 
   // Historique des pointages
@@ -176,7 +187,7 @@ class ApiService {
     if (dateDebut != null) params['date_debut'] = dateDebut;
     if (dateFin != null) params['date_fin'] = dateFin;
 
-    return await get('/pointages/mes-pointages', params: params);
+    return await get('/pointages/me', params: params);
   }
 
   // Mes sessions de travail
@@ -188,7 +199,7 @@ class ApiService {
     if (dateDebut != null) params['date_debut'] = dateDebut;
     if (dateFin != null) params['date_fin'] = dateFin;
 
-    return await get('/sessions/mes-sessions', params: params);
+    return await get('/pointages/sessions', params: params);
   }
 
   // Dashboard stats

@@ -44,6 +44,7 @@ class _HistoryScreenState extends State<HistoryScreen>
 
     try {
       final dateFormat = DateFormat('yyyy-MM-dd');
+      print('Loading history data...');
 
       final [pointagesRes, sessionsRes] = await Future.wait([
         _apiService.getMyPointages(
@@ -56,20 +57,40 @@ class _HistoryScreenState extends State<HistoryScreen>
         ),
       ]);
 
-      if (pointagesRes['success'] == true) {
-        _pointages = pointagesRes['data'] is List
-            ? pointagesRes['data']
-            : (pointagesRes['data']['data'] ?? []);
-      }
+      print('Pointages response: $pointagesRes');
+      print('Sessions response: $sessionsRes');
 
-      if (sessionsRes['success'] == true) {
-        _sessions = sessionsRes['data'] is List
-            ? sessionsRes['data']
-            : (sessionsRes['data']['data'] ?? []);
-      }
-    } catch (e) {
       setState(() {
-        _errorMessage = 'Erreur de chargement des donnees';
+        if (pointagesRes['success'] == true) {
+          final data = pointagesRes['data'];
+          if (data is List) {
+            _pointages = data;
+          } else if (data is Map) {
+            _pointages = data['data'] ?? data['pointages'] ?? [];
+          } else {
+            _pointages = [];
+          }
+        }
+
+        if (sessionsRes['success'] == true) {
+          final data = sessionsRes['data'];
+          if (data is List) {
+            _sessions = data;
+          } else if (data is Map) {
+            _sessions = data['data'] ?? data['sessions'] ?? [];
+          } else {
+            _sessions = [];
+          }
+        }
+      });
+
+      print('Pointages count: ${_pointages.length}');
+      print('Sessions count: ${_sessions.length}');
+    } catch (e, stackTrace) {
+      print('History load error: $e');
+      print('Stack trace: $stackTrace');
+      setState(() {
+        _errorMessage = 'Erreur: $e';
       });
     } finally {
       setState(() {

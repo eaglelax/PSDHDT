@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\QrCodeController;
 use App\Http\Controllers\Api\PointageController;
 use App\Http\Controllers\Api\BulletinPaieController;
 use App\Http\Controllers\Api\StatsController;
+use App\Http\Controllers\Api\EntrepriseController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\Route;
 
 // Routes publiques (sans authentification)
 Route::post('/auth/login', [AuthController::class, 'login']);
+
+// Configuration entreprise (public - pour charger le thème)
+Route::get('/entreprise', [EntrepriseController::class, 'show']);
 
 // Routes protégées (authentification requise)
 Route::middleware('auth:sanctum')->group(function () {
@@ -74,6 +78,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/presences', [StatsController::class, 'presences']);
             Route::get('/heures', [StatsController::class, 'heures']);
             Route::get('/salaires', [StatsController::class, 'salaires']);
+        });
+
+        // Configuration entreprise (admin uniquement)
+        Route::prefix('entreprise')->group(function () {
+            Route::put('/', [EntrepriseController::class, 'update']);
+            Route::post('/logo', [EntrepriseController::class, 'uploadLogo']);
+            Route::delete('/logo', [EntrepriseController::class, 'deleteLogo']);
+            Route::post('/reset-colors', [EntrepriseController::class, 'resetColors']);
         });
     });
 });

@@ -45,15 +45,33 @@ class _GuardScreenState extends State<GuardScreen> {
     });
 
     try {
+      print('Generating QR code...');
       final response = await _apiService.generateQrCode();
+      print('QR Response: $response');
 
       if (response['success'] == true) {
         final data = response['data'];
+        print('QR Data: $data');
+
         setState(() {
           _qrCode = data['code'];
-          _expiresAt = DateTime.parse(data['expires_at']);
-          _remainingSeconds = _expiresAt!.difference(DateTime.now()).inSeconds;
+          // L'API renvoie date_expiration - calculer les secondes restantes
+          if (data['date_expiration'] != null) {
+            _expiresAt = DateTime.parse(data['date_expiration']);
+            _remainingSeconds = _expiresAt!.difference(DateTime.now()).inSeconds;
+            // Si negatif, utiliser 5 minutes par defaut
+            if (_remainingSeconds <= 0) {
+              _remainingSeconds = 300; // 5 minutes
+              _expiresAt = DateTime.now().add(Duration(seconds: _remainingSeconds));
+            }
+          } else {
+            // Par defaut 5 minutes
+            _remainingSeconds = 300;
+            _expiresAt = DateTime.now().add(Duration(seconds: _remainingSeconds));
+          }
         });
+
+        print('QR Code set: $_qrCode, Remaining: $_remainingSeconds');
 
         // Timer pour regenerer automatiquement
         _timer?.cancel();
@@ -75,13 +93,16 @@ class _GuardScreenState extends State<GuardScreen> {
           },
         );
       } else {
+        print('QR generation failed: ${response['message']}');
         setState(() {
           _errorMessage = response['message'] ?? 'Erreur lors de la generation';
         });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('QR Error: $e');
+      print('Stack trace: $stackTrace');
       setState(() {
-        _errorMessage = 'Erreur de connexion au serveur';
+        _errorMessage = 'Erreur: $e';
       });
     } finally {
       setState(() {
@@ -150,7 +171,7 @@ class _GuardScreenState extends State<GuardScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF4F46E5).withOpacity(0.1),
+                            color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -292,114 +313,117 @@ class _GuardScreenState extends State<GuardScreen> {
   Widget _buildQrCode() {
     final isExpiring = _remainingSeconds < 60;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Titre
-        const Text(
-          'QR Code de Pointage',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1F2937),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Les employes doivent scanner ce code',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        const SizedBox(height: 32),
-
-        // QR Code
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: QrImageView(
-            data: _qrCode ?? '',
-            version: QrVersions.auto,
-            size: 220,
-            backgroundColor: Colors.white,
-            errorStateBuilder: (context, error) {
-              return const Center(
-                child: Text('Erreur QR'),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 32),
-
-        // Timer
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          decoration: BoxDecoration(
-            color: isExpiring ? Colors.red[50] : Colors.green[50],
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: isExpiring ? Colors.red[200]! : Colors.green[200]!,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Titre
+          const Text(
+            'QR Code de Pointage',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1F2937),
             ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.timer,
-                color: isExpiring ? Colors.red[700] : Colors.green[700],
+          const SizedBox(height: 4),
+          Text(
+            'Les employes doivent scanner ce code',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // QR Code
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: QrImageView(
+              data: _qrCode ?? '',
+              version: QrVersions.auto,
+              size: 180,
+              backgroundColor: Colors.white,
+              errorStateBuilder: (context, error) {
+                return const Center(
+                  child: Text('Erreur QR'),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Timer
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: isExpiring ? Colors.red[50] : Colors.green[50],
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: isExpiring ? Colors.red[200]! : Colors.green[200]!,
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Expire dans: ${_formatTime(_remainingSeconds)}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.timer,
+                  size: 20,
                   color: isExpiring ? Colors.red[700] : Colors.green[700],
                 ),
+                const SizedBox(width: 8),
+                Text(
+                  'Expire dans: ${_formatTime(_remainingSeconds)}',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isExpiring ? Colors.red[700] : Colors.green[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          Text(
+            'Validite: ${Config.qrCodeValidityMinutes} minutes',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[500],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Bouton regenerer
+          OutlinedButton.icon(
+            onPressed: _generateQrCode,
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Nouveau QR Code'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF4F46E5),
+              side: const BorderSide(color: Color(0xFF4F46E5)),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 10,
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        Text(
-          'Validite: ${Config.qrCodeValidityMinutes} minutes',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[500],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // Bouton regenerer
-        OutlinedButton.icon(
-          onPressed: _generateQrCode,
-          icon: const Icon(Icons.refresh),
-          label: const Text('Nouveau QR Code'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF4F46E5),
-            side: const BorderSide(color: Color(0xFF4F46E5)),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 12,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

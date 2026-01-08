@@ -52,18 +52,26 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     _scannerController?.stop();
 
     try {
+      print('Scanning QR code: $qrCode');
       final response = await _apiService.scanQrCode(qrCode);
+      print('Scan response: $response');
 
       setState(() {
         _lastSuccess = response['success'] == true;
-        _lastResult = response['success'] == true
-            ? response['data']['message'] ?? 'Pointage enregistre avec succes'
-            : response['message'] ?? 'Erreur lors du pointage';
+        if (response['success'] == true) {
+          // L'API peut renvoyer le message dans data ou directement
+          final data = response['data'];
+          _lastResult = data?['message'] ?? response['message'] ?? 'Pointage enregistre avec succes';
+        } else {
+          _lastResult = response['message'] ?? 'Erreur lors du pointage';
+        }
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('Scan error: $e');
+      print('Stack trace: $stackTrace');
       setState(() {
         _lastSuccess = false;
-        _lastResult = 'Erreur de connexion au serveur';
+        _lastResult = 'Erreur: $e';
       });
     } finally {
       setState(() {
@@ -145,7 +153,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF4F46E5).withOpacity(0.1),
+                            color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -252,7 +260,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withOpacity(0.3),
+                    color: const Color(0xFF4F46E5).withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -329,7 +337,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         // Overlay
         Container(
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
           ),
           child: Stack(
             children: [
@@ -365,7 +373,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     Text(
                       'Placez le QR code dans le cadre',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 16,
                       ),
                     ),

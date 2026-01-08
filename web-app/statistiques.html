@@ -5,40 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiques - Pointage RH</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS pour export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2>Pointage RH</h2>
+            <img src="" alt="Logo" class="company-logo" style="height: 40px; margin-bottom: 8px; display: none;">
+            <h2 class="company-name">Pointage RH</h2>
         </div>
 
         <nav class="sidebar-nav">
             <a href="dashboard.html" class="nav-item">
-                <span class="nav-icon">📊</span>
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span>
                 <span class="nav-text">Dashboard</span>
             </a>
             <a href="employes.html" class="nav-item">
-                <span class="nav-icon">👥</span>
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
                 <span class="nav-text">Employes</span>
             </a>
             <a href="pointages.html" class="nav-item">
-                <span class="nav-icon">⏱️</span>
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
                 <span class="nav-text">Pointages</span>
             </a>
             <a href="statistiques.html" class="nav-item active">
-                <span class="nav-icon">📈</span>
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span>
                 <span class="nav-text">Statistiques</span>
             </a>
             <a href="bulletins.html" class="nav-item">
-                <span class="nav-icon">📄</span>
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span>
                 <span class="nav-text">Bulletins</span>
+            </a>
+            <div style="margin: 16px 12px; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+            <a href="admin-entreprise.html" class="nav-item" id="nav-admin" style="display: none;">
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
+                <span class="nav-text">Administration</span>
             </a>
         </nav>
 
         <div class="sidebar-footer">
             <a href="#" class="nav-item" onclick="logout()">
-                <span class="nav-icon">🚪</span>
+                <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
                 <span class="nav-text">Deconnexion</span>
             </a>
         </div>
@@ -48,7 +58,7 @@
     <main class="main-content">
         <!-- Header -->
         <header class="header">
-            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <button class="menu-toggle" onclick="toggleSidebar()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
             <h1 class="page-title">Statistiques</h1>
             <div class="header-actions">
                 <span class="user-info" id="user-info">Chargement...</span>
@@ -92,6 +102,10 @@
                             <label>&nbsp;</label>
                             <button class="btn btn-primary" onclick="loadStats()">Actualiser</button>
                         </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-success" onclick="exportStatsExcel()">Exporter Excel</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -99,7 +113,7 @@
             <!-- Stats globales -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon blue">👥</div>
+                    <div class="stat-icon blue"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
                     <div class="stat-info">
                         <span class="stat-value" id="stat-employes">-</span>
                         <span class="stat-label">Total Employes</span>
@@ -107,7 +121,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon green">📅</div>
+                    <div class="stat-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
                     <div class="stat-info">
                         <span class="stat-value" id="stat-jours">-</span>
                         <span class="stat-label">Jours Travailles</span>
@@ -115,7 +129,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon orange">⏰</div>
+                    <div class="stat-icon orange"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
                     <div class="stat-info">
                         <span class="stat-value" id="stat-heures-total">-</span>
                         <span class="stat-label">Total Heures</span>
@@ -123,10 +137,33 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon red">💰</div>
+                    <div class="stat-icon red"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
                     <div class="stat-info">
                         <span class="stat-value" id="stat-salaires">-</span>
                         <span class="stat-label">Masse Salariale</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphiques -->
+            <div class="grid grid-2 mt-2">
+                <!-- Graphique Camembert - Repartition des Heures -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Repartition des Heures</h3>
+                    </div>
+                    <div class="card-body" style="height: 300px;">
+                        <canvas id="chart-heures-pie"></canvas>
+                    </div>
+                </div>
+
+                <!-- Graphique Barres - Top Employes -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Top 10 Employes - Heures Travaillees</h3>
+                    </div>
+                    <div class="card-body" style="height: 300px;">
+                        <canvas id="chart-employes-bar"></canvas>
                     </div>
                 </div>
             </div>
@@ -148,7 +185,7 @@
                 <!-- Heures -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Repartition des Heures</h3>
+                        <h3 class="card-title">Resume des Heures</h3>
                     </div>
                     <div class="card-body">
                         <div class="stats-breakdown">
@@ -257,6 +294,7 @@
 
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/theme.js"></script>
     <script>
         // Verifier l'authentification
         if (!requireAuth()) {}
@@ -266,6 +304,11 @@
             loadUserInfo();
             initFilters();
             loadStats();
+            // Afficher le lien admin si l'utilisateur est directeur ou RH
+            const user = getCurrentUser();
+            if (user && ['directeur', 'rh'].includes(user.role)) {
+                document.getElementById('nav-admin').style.display = 'flex';
+            }
         });
 
         // Charger les infos utilisateur
@@ -353,6 +396,9 @@
                         </div>
                     </div>
                 `).join('');
+
+                // Creer le graphique barres des employes
+                createEmployesBarChart(employesList);
             } else {
                 list.innerHTML = '<div class="text-center text-muted">Aucune donnee</div>';
             }
@@ -376,11 +422,17 @@
         // Mettre a jour les stats d'heures
         function updateHeuresStats(data) {
             const totaux = data.totaux || {};
-            const totalHeures = (totaux.heures_normales || data.heures_normales || 0) + (totaux.heures_sup || data.heures_supplementaires || 0);
+            const heuresNormales = totaux.heures_normales || data.heures_normales || 0;
+            const heuresSup = totaux.heures_sup || data.heures_supplementaires || 0;
+            const totalHeures = heuresNormales + heuresSup;
+
             document.getElementById('stat-heures-total').textContent = totalHeures + 'h';
-            document.getElementById('heures-normales').textContent = (totaux.heures_normales || data.heures_normales || 0) + 'h';
-            document.getElementById('heures-sup').textContent = (totaux.heures_sup || data.heures_supplementaires || 0) + 'h';
+            document.getElementById('heures-normales').textContent = heuresNormales + 'h';
+            document.getElementById('heures-sup').textContent = heuresSup + 'h';
             document.getElementById('heures-moyenne').textContent = (data.moyenne_journaliere || 0) + 'h';
+
+            // Creer le graphique camembert
+            createHeuresPieChart(heuresNormales, heuresSup);
 
             // Top heures - utiliser les employes de presences car heures n'a pas par_employe
             const topHeures = document.getElementById('top-heures');
@@ -422,6 +474,171 @@
             } else {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Aucune donnee - Generez des bulletins d\'abord</td></tr>';
             }
+        }
+
+        // Variables pour les graphiques
+        let chartHeuresPie = null;
+        let chartEmployesBar = null;
+
+        // Creer le graphique camembert des heures
+        function createHeuresPieChart(heuresNormales, heuresSup) {
+            const ctx = document.getElementById('chart-heures-pie').getContext('2d');
+
+            // Detruire le graphique existant s'il existe
+            if (chartHeuresPie) {
+                chartHeuresPie.destroy();
+            }
+
+            chartHeuresPie = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Heures Normales', 'Heures Supplementaires'],
+                    datasets: [{
+                        data: [heuresNormales || 0, heuresSup || 0],
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(79, 70, 229, 1)',
+                            'rgba(245, 158, 11, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + 'h';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Creer le graphique barres des employes
+        function createEmployesBarChart(employes) {
+            const ctx = document.getElementById('chart-employes-bar').getContext('2d');
+
+            // Detruire le graphique existant s'il existe
+            if (chartEmployesBar) {
+                chartEmployesBar.destroy();
+            }
+
+            // Trier par heures totales et prendre top 10
+            const sorted = [...employes].sort((a, b) => {
+                const totalA = (a.heures_normales || 0) + (a.heures_sup || a.heures_supplementaires || 0);
+                const totalB = (b.heures_normales || 0) + (b.heures_sup || b.heures_supplementaires || 0);
+                return totalB - totalA;
+            }).slice(0, 10);
+
+            const labels = sorted.map(e => e.nom_complet || (e.user ? e.user.prenom + ' ' + e.user.nom : 'N/A'));
+            const heuresNormales = sorted.map(e => e.heures_normales || 0);
+            const heuresSup = sorted.map(e => e.heures_sup || e.heures_supplementaires || 0);
+
+            chartEmployesBar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Heures Normales',
+                            data: heuresNormales,
+                            backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Heures Sup',
+                            data: heuresSup,
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                            borderColor: 'rgba(245, 158, 11, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: { size: 10 }
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Heures'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + 'h';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Exporter les statistiques en Excel
+        function exportStatsExcel() {
+            const mois = document.getElementById('filter-mois').value;
+            const annee = document.getElementById('filter-annee').value;
+            const moisNoms = ['', 'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
+
+            // Recuperer les donnees des tableaux
+            const data = [
+                ['STATISTIQUES - ' + moisNoms[mois] + ' ' + annee],
+                [],
+                ['RESUME GLOBAL'],
+                ['Total Employes', document.getElementById('stat-employes').textContent],
+                ['Jours Travailles', document.getElementById('stat-jours').textContent],
+                ['Total Heures', document.getElementById('stat-heures-total').textContent],
+                ['Masse Salariale', document.getElementById('stat-salaires').textContent],
+                [],
+                ['REPARTITION DES HEURES'],
+                ['Heures Normales', document.getElementById('heures-normales').textContent],
+                ['Heures Supplementaires', document.getElementById('heures-sup').textContent],
+                ['Moyenne par jour', document.getElementById('heures-moyenne').textContent],
+            ];
+
+            // Creer le workbook
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{ wch: 25 }, { wch: 20 }];
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Statistiques');
+
+            // Telecharger
+            XLSX.writeFile(wb, `statistiques_${mois}_${annee}.xlsx`);
         }
 
         // Toggle sidebar

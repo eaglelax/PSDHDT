@@ -1,13 +1,13 @@
 # Suivi du Projet - Application de Pointage RH
 
-> **Dernière mise à jour :** 06/01/2026
+> **Dernière mise à jour :** 08/01/2026
 
 ---
 
 ## Progression Globale
 
 ```
-[████████████████████████████████████████] 80% - Phase 4 terminée
+[████████████████████████████████████████████████░░] 96% - Phase 6 en cours
 ```
 
 | Phase | Statut | Progression |
@@ -16,8 +16,8 @@
 | Phase 2 : API Core | ✅ Terminée | 100% |
 | Phase 3 : Web App | ✅ Terminée | 100% |
 | Phase 4 : Mobile App | ✅ Terminée | 100% |
-| Phase 5 : Avancées | ⏳ En attente | 0% |
-| Phase 6 : Finalisation | ⏳ En attente | 0% |
+| Phase 5 : Avancées | ✅ Terminée | 100% |
+| Phase 6 : Finalisation | 🔄 En cours | 20% |
 
 ---
 
@@ -147,6 +147,10 @@ web-app/
 | Écran Gardien - Générateur QR (guard_screen.dart) | ✅ | 06/01 |
 | Historique pointages (history_screen.dart) | ✅ | 06/01 |
 | Main.dart avec Splash Screen | ✅ | 06/01 |
+| Correction endpoints API (auth/login, qrcode/generate) | ✅ | 07/01 |
+| Correction parsing date QR code (date_expiration) | ✅ | 07/01 |
+| Correction overflow écran Gardien | ✅ | 07/01 |
+| Test connexion + génération QR | ✅ | 07/01 |
 
 ### Fichiers Mobile App créés
 
@@ -180,26 +184,102 @@ mobile-app/
 
 ---
 
-## Phase 5 : Fonctionnalités Avancées ⏳
+## Phase 5 : Fonctionnalités Avancées ✅
 
 | Étape | Statut | Date |
 |-------|--------|------|
-| Calcul automatique salaires | ⬜ | - |
-| Génération PDF bulletins | ⬜ | - |
-| Graphiques statistiques | ⬜ | - |
-| Export rapports | ⬜ | - |
+| Calcul automatique salaires avec cotisations (CNSS/IRG) | ✅ | 08/01 |
+| Migration ajout champs cotisations | ✅ | 08/01 |
+| Mise à jour modèle BulletinPaie | ✅ | 08/01 |
+| Mise à jour BulletinPaieController | ✅ | 08/01 |
+| Génération PDF bulletins (jsPDF frontend) | ✅ | 08/01 |
+| Graphiques statistiques (Chart.js) | ✅ | 08/01 |
+| Export Excel (SheetJS) | ✅ | 08/01 |
+
+### Détails des calculs de salaire
+
+**Formules implémentées :**
+```
+Salaire Brut = Salaire Base + (Heures Sup × Taux Horaire × 1.5) + Primes
+Cotisation CNSS = Salaire Brut × 3.5%
+IRG = (Salaire Brut - CNSS) × 10%
+Total Retenues = CNSS + IRG + Autres Déductions
+Salaire Net = Salaire Brut - Total Retenues
+```
+
+### Librairies JavaScript ajoutées
+
+- **jsPDF** : Génération de PDF côté client
+- **html2canvas** : Capture HTML pour PDF
+- **Chart.js** : Graphiques interactifs
+- **SheetJS (xlsx)** : Export Excel
+
+### Nouvelles fonctionnalités Web App
+
+- Bulletin de paie avec détail des cotisations
+- Bouton "Télécharger PDF" sur chaque bulletin
+- Bouton "Exporter Excel" sur les bulletins et statistiques
+- Graphique camembert : Répartition heures normales/supplémentaires
+- Graphique barres : Top 10 employés par heures travaillées
 
 ---
 
-## Phase 6 : Finalisation ⏳
+## Phase 6 : Finalisation 🔄
 
 | Étape | Statut | Date |
 |-------|--------|------|
-| Tests unitaires | ⬜ | - |
-| Tests d'intégration | ⬜ | - |
-| Correction bugs | ⬜ | - |
-| Documentation | ⬜ | - |
-| Déploiement | ⬜ | - |
+| Migration cotisations | ✅ | 08/01 |
+| Administration Entreprise (logo, couleurs) | ✅ | 08/01 |
+| Tests API endpoints | ⬜ | - |
+| Tests Web App | ⬜ | - |
+| Tests Mobile App | ⬜ | - |
+| Correction bugs éventuels | ⬜ | - |
+| Documentation finale | ⬜ | - |
+| Guide de déploiement | ⬜ | - |
+
+### Administration Entreprise (Nouveau)
+
+**Fonctionnalités implémentées :**
+- Configuration du nom de l'entreprise
+- Upload du logo
+- Personnalisation des couleurs (primaire, secondaire, accent)
+- Application dynamique du thème sur toute la plateforme
+- Aperçu en temps réel des modifications
+
+**Fichiers créés :**
+- `api/app/Models/Entreprise.php` - Modèle Eloquent
+- `api/app/Http/Controllers/Api/EntrepriseController.php` - API CRUD
+- `api/database/migrations/2026_01_08_203110_create_entreprises_table.php` - Migration
+- `api/database/seeders/EntrepriseSeeder.php` - Données initiales
+- `web-app/js/theme.js` - Service de thème dynamique
+- `web-app/admin-entreprise.html` - Page d'administration
+
+**Endpoints API :**
+- `GET /api/entreprise` - Récupérer la configuration (public)
+- `PUT /api/entreprise` - Mettre à jour la configuration (admin)
+- `POST /api/entreprise/logo` - Upload logo (admin)
+- `DELETE /api/entreprise/logo` - Supprimer logo (admin)
+- `POST /api/entreprise/reset-colors` - Réinitialiser couleurs (admin)
+
+### Tâches de finalisation détaillées
+
+**1. Migration Base de Données**
+- Exécuter `php artisan migrate` (nécessite MySQL démarré)
+- Vérifier les nouveaux champs : salaire_brut, taux_cnss, cotisation_cnss, taux_irg, montant_irg, total_retenues, commentaires
+
+**2. Tests à effectuer**
+- [ ] Connexion tous les rôles (Directeur, RH, Gardien, Employé)
+- [ ] Génération QR code (Gardien)
+- [ ] Scan QR code (Employé)
+- [ ] Création bulletin de paie avec cotisations
+- [ ] Téléchargement PDF bulletin
+- [ ] Export Excel (bulletins et statistiques)
+- [ ] Graphiques statistiques (camembert et barres)
+
+**3. Documentation**
+- Guide de lancement local : ✅ LANCEMENT_LOCAL.md
+- Suivi projet : ✅ SUIVI_PROJET.md
+- Documentation API : À compléter
 
 ---
 
@@ -217,8 +297,8 @@ mobile-app/
 ## Commandes Utiles
 
 ```bash
-# Lancer le serveur API
-cd api && php artisan serve
+# Lancer le serveur API (port 8080)
+cd api && php artisan serve --port=8080
 
 # Réinitialiser la base de données
 cd api && php artisan migrate:fresh --seed
@@ -240,20 +320,34 @@ cd web-app && python -m http.server 3000
 
 ```bash
 # Login (récupérer le token)
-curl -X POST http://localhost:8000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"rh@entreprise.com","password":"password123"}'
+curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{\"email\":\"rh@entreprise.com\",\"password\":\"password123\"}"
 
 # Utiliser le token pour les requêtes authentifiées
-curl http://localhost:8000/api/auth/me \
-  -H "Authorization: Bearer VOTRE_TOKEN"
+curl http://localhost:8080/api/auth/me -H "Authorization: Bearer VOTRE_TOKEN"
 ```
 
 ---
 
 ## Notes & Problèmes
 
-*Aucun problème pour le moment.*
+### Résolu le 07/01/2026
+- **Endpoints API Mobile** : Correction des chemins (`/login` → `/auth/login`, `/qr-codes/generate` → `/qrcode/generate`)
+- **Parsing date QR** : L'API retourne `date_expiration` au lieu de `expires_at`
+- **Secondes restantes négatives** : Problème de timezone, fallback à 5 minutes par défaut
+- **Overflow écran Gardien** : Ajout de `SingleChildScrollView` et réduction des tailles
+- **Deprecated withOpacity** : Migration vers `withValues(alpha:)`
+
+---
+
+## Idées pour V2 (Prochaine version)
+
+| Fonctionnalité | Description | Priorité |
+|----------------|-------------|----------|
+| Administration Entreprise | Logo, nom, couleurs personnalisables par entreprise | Haute |
+| Multi-tenant | Support de plusieurs entreprises sur une même instance | Haute |
+| Notifications | Alertes email/SMS pour retards, absences | Moyenne |
+| Rapports avancés | Export PDF des rapports mensuels | Moyenne |
+| Application mobile native | Version Android/iOS avec notifications push | Basse |
 
 ---
 

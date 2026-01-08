@@ -255,8 +255,41 @@ const API = {
      */
     async getQrCodeHistory() {
         return this.request('/qrcode/history');
+    },
+
+    // ==================== METHODES GENERIQUES ====================
+
+    /**
+     * GET request
+     */
+    async get(endpoint) {
+        return this.request(endpoint, 'GET');
+    },
+
+    /**
+     * POST request
+     */
+    async post(endpoint, data = null) {
+        return this.request(endpoint, 'POST', data);
+    },
+
+    /**
+     * PUT request
+     */
+    async put(endpoint, data = null) {
+        return this.request(endpoint, 'PUT', data);
+    },
+
+    /**
+     * DELETE request
+     */
+    async delete(endpoint) {
+        return this.request(endpoint, 'DELETE');
     }
 };
+
+// Alias pour compatibilité (minuscules)
+const api = API;
 
 // ==================== HELPERS ====================
 
@@ -387,4 +420,11 @@ function requireAuth() {
     }
 
     return true;
+}
+
+/**
+ * Alias pour requireAuth (compatibilite)
+ */
+function checkAuth() {
+    return requireAuth();
 }

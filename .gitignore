@@ -57,3 +57,4 @@ logs/
 # Temp files
 *.tmp
 *.temp
+nul

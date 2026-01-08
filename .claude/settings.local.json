@@ -22,7 +22,21 @@
       "Bash(if [ -f \"c:/Users/JOACHIM/Documents/PSDHDT/mobile-app/lib/main.dart\" ])",
       "Bash(then cat \"c:/Users/JOACHIM/Documents/PSDHDT/mobile-app/lib/main.dart\")",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(\"C:/Users/JOACHIM/Documents/flutter/bin/flutter.bat\" doctor)",
+      "Bash(\"C:/Users/JOACHIM/Documents/flutter/bin/flutter.bat\" doctor --android-licenses)",
+      "Bash(\"C:/Users/JOACHIM/Documents/flutter/bin/flutter.bat\" pub get)",
+      "Bash(\"C:/Users/JOACHIM/Documents/flutter/bin/flutter.bat\" run -d edge)",
+      "Bash(\"C:/Users/JOACHIM/Documents/flutter/bin/flutter.bat\" create . --platforms=web,android)",
+      "Bash(cat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(ls:*)",
+      "Bash(netstat:*)"
     ]
   }
 }

@@ -41,7 +41,7 @@ class BulletinPaieController extends Controller
     }
 
     /**
-     * Générer un bulletin de paie
+     * Generer un bulletin de paie
      */
     public function generate(Request $request): JsonResponse
     {
@@ -51,6 +51,9 @@ class BulletinPaieController extends Controller
             'annee' => 'required|integer|min:2020',
             'primes' => 'nullable|numeric|min:0',
             'deductions' => 'nullable|numeric|min:0',
+            'taux_cnss' => 'nullable|numeric|min:0|max:100',
+            'taux_irg' => 'nullable|numeric|min:0|max:100',
+            'commentaires' => 'nullable|string|max:500',
         ]);
 
         $bulletin = BulletinPaie::generer(
@@ -58,14 +61,17 @@ class BulletinPaieController extends Controller
             $request->mois,
             $request->annee,
             $request->get('primes', 0),
-            $request->get('deductions', 0)
+            $request->get('deductions', 0),
+            $request->get('taux_cnss'),
+            $request->get('taux_irg'),
+            $request->get('commentaires')
         );
 
-        $bulletin->load('user:id,matricule,nom,prenom');
+        $bulletin->load('user:id,matricule,nom,prenom,email,telephone');
 
         return response()->json([
             'success' => true,
-            'message' => 'Bulletin de paie généré avec succès',
+            'message' => 'Bulletin de paie genere avec succes',
             'data' => $bulletin,
         ], 201);
     }
@@ -137,31 +143,55 @@ class BulletinPaieController extends Controller
     }
 
     /**
-     * Modifier un bulletin (primes/déductions)
+     * Modifier un bulletin (primes/deductions/taux)
      */
     public function update(Request $request, BulletinPaie $bulletin): JsonResponse
     {
         $request->validate([
             'primes' => 'nullable|numeric|min:0',
             'deductions' => 'nullable|numeric|min:0',
+            'taux_cnss' => 'nullable|numeric|min:0|max:100',
+            'taux_irg' => 'nullable|numeric|min:0|max:100',
+            'commentaires' => 'nullable|string|max:500',
         ]);
 
         $primes = $request->get('primes', $bulletin->primes);
         $deductions = $request->get('deductions', $bulletin->deductions);
+        $tauxCnss = $request->get('taux_cnss', $bulletin->taux_cnss);
+        $tauxIrg = $request->get('taux_irg', $bulletin->taux_irg);
+        $commentaires = $request->get('commentaires', $bulletin->commentaires);
 
-        // Recalculer le salaire net
-        $salaireNet = $bulletin->salaire_base + $bulletin->montant_heures_sup + $primes - $deductions;
+        // Recalculer le salaire brut
+        $salaireBrut = $bulletin->salaire_base + $bulletin->montant_heures_sup + $primes;
+
+        // Recalculer les cotisations
+        $cotisationCnss = round($salaireBrut * ($tauxCnss / 100), 2);
+        $baseImposable = $salaireBrut - $cotisationCnss;
+        $montantIrg = round($baseImposable * ($tauxIrg / 100), 2);
+
+        // Total des retenues
+        $totalRetenues = $cotisationCnss + $montantIrg + $deductions;
+
+        // Salaire net
+        $salaireNet = $salaireBrut - $totalRetenues;
 
         $bulletin->update([
             'primes' => $primes,
             'deductions' => $deductions,
+            'salaire_brut' => $salaireBrut,
+            'taux_cnss' => $tauxCnss,
+            'cotisation_cnss' => $cotisationCnss,
+            'taux_irg' => $tauxIrg,
+            'montant_irg' => $montantIrg,
+            'total_retenues' => $totalRetenues,
             'salaire_net' => $salaireNet,
+            'commentaires' => $commentaires,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Bulletin mis à jour',
-            'data' => $bulletin->fresh(),
+            'message' => 'Bulletin mis a jour',
+            'data' => $bulletin->fresh()->load('user:id,matricule,nom,prenom,email'),
         ]);
     }
 }
